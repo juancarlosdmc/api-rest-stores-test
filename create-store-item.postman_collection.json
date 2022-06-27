@@ -1,0 +1,329 @@
+{
+	"info": {
+		"_postman_id": "6e5d5a94-6068-466c-8e06-c59a1d639451",
+		"name": "RESTAPIStoreUsercreatestoreanditem",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "21631000"
+	},
+	"item": [
+		{
+			"name": "/register",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"postman.clearEnvironmentVariable(\"access_token\");",
+							"",
+							"tests[\"Response time is less than 200ms\"] = responseTime < 200;",
+							"",
+							"var jsonData = JSON.parse(responseBody);",
+							"",
+							"tests[\"User created successfully\"] = jsonData.message === 'User created successfully.';",
+							"",
+							"tests[\"Content type is present in response\"] = postman.getResponseHeader('Content-Type');",
+							"tests[\"Content-Type is 'application/json'\"] = postman.getResponseHeader('Content-Type') === 'application/json'"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\": \"user4\",\n    \"password\": \"abcxyz\"\n}"
+				},
+				"url": {
+					"raw": "{{url}}/register",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"register"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/auth",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonData = JSON.parse(responseBody);",
+							"",
+							"postman.setEnvironmentVariable(\"access_token\", jsonData.access_token);",
+							"",
+							"tests[\"Status code is 200\"] = responseCode.code === 200;",
+							"tests[\"Body contains access_token\"] = responseBody.has(\"access_token\");",
+							"",
+							"tests [\"Response time is less than 150ms\"] = responseTime < 150;"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\": \"user4\",\n    \"password\": \"abcxyz\"\n}"
+				},
+				"url": {
+					"raw": "{{url}}/auth",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"auth"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/store/<name>",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonData = JSON.parse(responseBody);",
+							"tests[\"Store id is returned\"] == jsonData.id === 1;",
+							"",
+							"tests[\"Successful POST request\"] = responseCode.code = 201;",
+							"tests[\"Response time is less than 200ms\"] = responseTime < 200;",
+							"",
+							"tests[\"Content-Type is 'application/json'\"] = postman.getResponseHeader(\"Content-Type\") === 'application/json';",
+							"",
+							"postman.setEnvironmentVariable(\"store_id\", jsonData.id);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"name\": \"store1\",\n    \"items\": [],\n    \"id\": 1\n}"
+				},
+				"url": {
+					"raw": "{{url}}/store/store1",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"store",
+						"store1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/item/<name>",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonData = JSON.parse(responseBody);",
+							"tests[\"Store id is returned\"] == pm.expect(jsonData.name).not.equal(null); //investigar como hacer que compare que no sea null",
+							"tests[\"Store price is returned\"] == jsonData.price; // estos tests no sirven",
+							"",
+							"tests[\"Successful POST request\"] = responseCode.code = 201;",
+							"tests[\"Response time is less than 200ms\"] = responseTime < 200;",
+							"",
+							"tests[\"Content-Type is 'application/json'\"] = postman.getResponseHeader(\"Content-Type\") === 'application/json';",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"price\": \"800\",\n    \"store_id\": {{store_id}}\n}"
+				},
+				"url": {
+					"raw": "{{url}}/item/iPhone",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"item",
+						"iPhone"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/stores",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonData = JSON.parse(responseBody);",
+							"tests[\"Store name is returned\"] == jsonData.stores[0].name === (environment.name) //check how to validate the name is returned",
+							"tests[\"ID of store is returned\"] = jsonData.stores[0].id === parseInt(environment.store_id); //check why this test is failing",
+							"tests[\"Item iPhone price is returned inside store1\"] = jsonData.stores[0].items[0].price == 800;",
+							"",
+							"tests[\"Successful POST request\"] = responseCode.code = 201;",
+							"tests[\"Response time is less than 200ms\"] = responseTime < 200;",
+							"",
+							"tests[\"Content-Type is 'application/json'\"] = postman.getResponseHeader(\"Content-Type\") === 'application/json';",
+							"",
+							"postman.setEnvironmentVariable(\"store_id\", jsonData.id);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "JWT {{access_token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "{{url}}/stores",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"stores"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/item/my_item Copy",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonData = JSON.parse(responseBody);",
+							"tests[\"Message is returned\"] == jsonData.message === 'Item deleted' //check how to validate the name is returned",
+							"",
+							"tests[\"Successful POST request\"] = responseCode.code = 201;",
+							"tests[\"Response time is less than 200ms\"] = responseTime < 200;",
+							"",
+							"tests[\"Content-Type is 'application/json'\"] = postman.getResponseHeader(\"Content-Type\") === 'application/json';",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{url}}/item/iPhone",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"item",
+						"iPhone"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/store/<name> Copy",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonData = JSON.parse(responseBody);",
+							"tests[\"Message is returned\"] == jsonData.message === 'Store deleted' //check how to validate the name is returned",
+							"",
+							"tests[\"Successful POST request\"] = responseCode.code = 201;",
+							"tests[\"Response time is less than 200ms\"] = responseTime < 200;",
+							"",
+							"tests[\"Content-Type is 'application/json'\"] = postman.getResponseHeader(\"Content-Type\") === 'application/json';"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{url}}/store/store1",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"store",
+						"store1"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
